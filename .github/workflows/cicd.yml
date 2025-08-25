@@ -37,7 +37,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
-
+      
       - name: Build & Push Frontend (latest only)
         uses: docker/build-push-action@v6
         with:
@@ -46,5 +46,5 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:buildcache,mode=max
+          build-args: |
+            VITE_API_BASE=https://<你的後端>.railway.app
