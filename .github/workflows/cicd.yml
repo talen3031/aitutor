@@ -3,19 +3,19 @@ name: Build & Push Images to Docker Hub
 on:
   push:
     branches: [ "main" ]
-    # 可選：只在 backend/ 或 frontend/ 有變動才建置
-    # paths:
-    #   - "backend/**"
-    #   - "frontend/**"
-  # 可選：發 tag 就推版本 tag
-  tag:
-    types: [created]
+    # 發 tag 也觸發（自行調整樣式）
+    tags:
+      - "v*"
+      - "release-*"
+  # 手動觸發（可選）
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,12 +37,22 @@ jobs:
         run: |
           REPO="${{ secrets.DOCKERHUB_USERNAME }}"
           SHA_TAG=${GITHUB_SHA::7}
-          #  image 名稱
+
+          # 預設 latest + 短 SHA
+          BACKEND_TAGS="${REPO}/aitutor-backend:latest,${REPO}/aitutor-backend:${SHA_TAG}"
+          FRONTEND_TAGS="${REPO}/aitutor-frontend:latest,${REPO}/aitutor-frontend:${SHA_TAG}"
+
+          # 如果這次是 tag 觸發，另外加上同名 git tag
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            GIT_TAG="${{ github.ref_name }}"
+            BACKEND_TAGS+=",${REPO}/aitutor-backend:${GIT_TAG}"
+            FRONTEND_TAGS+=",${REPO}/aitutor-frontend:${GIT_TAG}"
+          fi
+
           echo "BACKEND_IMAGE=${REPO}/aitutor-backend" >> $GITHUB_OUTPUT
           echo "FRONTEND_IMAGE=${REPO}/aitutor-frontend" >> $GITHUB_OUTPUT
-          # 預設標籤：sha 與 latest（也可加入分支名）
-          echo "BACKEND_TAGS=${REPO}/aitutor-backend:latest,${REPO}/aitutor-backend:${SHA_TAG}" >> $GITHUB_OUTPUT
-          echo "FRONTEND_TAGS=${REPO}/aitutor-frontend:latest,${REPO}/aitutor-frontend:${SHA_TAG}" >> $GITHUB_OUTPUT
+          echo "BACKEND_TAGS=${BACKEND_TAGS}" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAGS=${FRONTEND_TAGS}" >> $GITHUB_OUTPUT
 
       - name: Build & Push Backend
         uses: docker/build-push-action@v6
