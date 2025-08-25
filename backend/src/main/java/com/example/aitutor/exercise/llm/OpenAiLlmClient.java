@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@Profile("prod")
 public class OpenAiLlmClient implements LlmClient {
 
   private final OpenAiService service;
