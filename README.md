@@ -5,9 +5,47 @@
 
 - **後端 (backend)**：Java Spring Boot  / PostgreSQL / JPA
 - **前端 (frontend)**：React / Axios / Ant Design
-
+- **雲端部署(Railway)**: [aitutor](https://aitutor-frontend-production.up.railway.app)
 ---
 
+### 系統架構圖
+```text
+
+[前端 React + Vite + Ant Design]
+   │
+   ▼
+[Spring Boot REST API]
+   ├── ArticleController 
+   │       → ArticleService 
+   │       → ArticleRepository 
+   │       → [article 表]
+   │
+   ├── ExerciseController 
+   │       → ExerciseService 
+   │       → QuestionGenService 
+   │       → PromptFactory 
+   │       → LlmClient(OpenAiLlmClient) → [OpenAI GPT-4o-mini]
+   │       → ExerciseSetRepository 
+   │       → [exercise_set 表]
+   │
+   └── SubmissionController 
+           → SubmissionService 
+           → SubmissionRepository 
+           → [submissions 表]
+
+   │
+   ▼
+[PostgreSQL @ Railway]
+   ├── article
+   ├── exercise_set
+   └── submission
+
+[外部服務]
+   ├── JsoupFetcher → [新聞/文章來源網站]
+   └── OpenAiLlmClient → [OpenAI API GPT-4o-mini]
+
+```
+---
 
 ## ✨ 功能說明
 
@@ -100,43 +138,6 @@ SubmissionService
 
 ```
 
-### 系統架構圖
-```text
-
-[前端 React + Vite + Ant Design]
-   │
-   ▼
-[Spring Boot REST API]
-   ├── ArticleController 
-   │       → ArticleService 
-   │       → ArticleRepository 
-   │       → [article 表]
-   │
-   ├── ExerciseController 
-   │       → ExerciseService 
-   │       → QuestionGenService 
-   │       → PromptFactory 
-   │       → LlmClient(OpenAiLlmClient) → [OpenAI GPT-4o-mini]
-   │       → ExerciseSetRepository 
-   │       → [exercise_set 表]
-   │
-   └── SubmissionController 
-           → SubmissionService 
-           → SubmissionRepository 
-           → [submission 表]
-
-   │
-   ▼
-[PostgreSQL @ Railway]
-   ├── article
-   ├── exercise_set
-   └── submission
-
-[外部服務]
-   ├── JsoupFetcher → [新聞/文章來源網站]
-   └── OpenAiLlmClient → [OpenAI API GPT-4o-mini]
-
-```
 ---
 ## ⚙️ 環境需求
 
@@ -144,6 +145,4 @@ SubmissionService
 - **Node.js**: 18+ (建議使用 LTS)
 - **npm**: 9+ / 或 yarn, pnpm
 - **PostgreSQL**: 15+
-- **Maven**: 使用專案內建的 `mvnw` wrapper 即可
-
 ---
