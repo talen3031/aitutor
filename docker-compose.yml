@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: talen3031/aitutor-backend:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/app
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: talen3031/aitutor-frontend:latest
+    ports:
+      - "5173:80"
+    # 如果用反代，需要讓 nginx.conf 的 proxy_pass 指向 backend 服務名 `backend:8080`
+    depends_on:
+      - backend
