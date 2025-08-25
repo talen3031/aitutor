@@ -1,24 +1,9 @@
-# src/main/resources/application.yml
+# ---------- 共用（所有 profile 都會套用） ----------
 springdoc:
   packages-to-scan: com.example.aitutor.web
 
-spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}   # 本機預設 local，Railway 設 prod
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate.jdbc.time_zone: UTC
-      hibernate.format_sql: true
-    open-in-view: false
-
-  flyway:
-    enabled: true
-
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:8080}             # Railway 會給 PORT；本機則預設 8080
   forward-headers-strategy: native
 
 logging.level:
@@ -39,6 +24,15 @@ spring:
     url: jdbc:postgresql://localhost:5432/aitutor
     username: postgres
     password: talen168168
+  jpa:
+    hibernate:
+      ddl-auto: update           # 本機可用 update 方便開發（或你要 validate 也行）
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: false               # 本機沒有 migration 就先關掉；若有就改成 true
 
 # ---------- prod（Railway） ----------
 ---
@@ -50,3 +44,12 @@ spring:
     url: ${SPRING_DATASOURCE_URL:}
     username: ${SPRING_DATASOURCE_USERNAME:}
     password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate         # 線上用 validate，交由 Flyway 管 schema
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true

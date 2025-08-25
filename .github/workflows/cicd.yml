@@ -47,4 +47,4 @@ jobs:
           platforms: linux/amd64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:latest
           build-args: |
-            VITE_API_BASE=https://<你的後端>.railway.app
+            VITE_API_BASE=https://aitutor-backend-production.up.railway.app/
