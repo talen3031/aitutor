@@ -16,13 +16,15 @@ public class EnvLog {
 
     @Value("${spring.datasource.password:NOT_SET}")
     private String dbPass;
+    @Value("${openai.api-key:NOT_SET}")
+    private String apiKey;
 
     @PostConstruct
     public void printEnv() {
         System.out.println("✅ [EnvLog] spring.datasource.url = " + dbUrl);
         System.out.println("✅ [EnvLog] spring.datasource.username = " + dbUser);
         System.out.println("✅ [EnvLog] spring.datasource.password = " + (dbPass.isEmpty() ? "(empty)" : "(provided)"));
-        System.out.println("✅ [DEBUG] OPENAI_API_KEY = " + System.getenv("OPENAI_API_KEY"));
+        System.out.println("✅ [DEBUG] openai.api-key = " + apiKey);
     }
     
 }
