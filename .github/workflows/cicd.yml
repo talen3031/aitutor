@@ -3,11 +3,6 @@ name: Build & Push Images to Docker Hub
 on:
   push:
     branches: [ "main" ]
-    # 發 tag 也觸發（自行調整樣式）
-    tags:
-      - "v*"
-      - "release-*"
-  # 手動觸發（可選）
   workflow_dispatch:
 
 jobs:
@@ -31,52 +26,25 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Debug files
-        run: |
-          pwd
-          ls -R frontend | head -50
 
-      - name: Prepare tags
-        id: prep
-        run: |
-          REPO="${{ secrets.DOCKERHUB_USERNAME }}"
-          SHA_TAG=${GITHUB_SHA::7}
-
-          # 預設 latest + 短 SHA
-          BACKEND_TAGS="${REPO}/aitutor-backend:latest,${REPO}/aitutor-backend:${SHA_TAG}"
-          FRONTEND_TAGS="${REPO}/aitutor-frontend:latest,${REPO}/aitutor-frontend:${SHA_TAG}"
-
-          # 如果這次是 tag 觸發，另外加上同名 git tag
-          if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            GIT_TAG="${{ github.ref_name }}"
-            BACKEND_TAGS+=",${REPO}/aitutor-backend:${GIT_TAG}"
-            FRONTEND_TAGS+=",${REPO}/aitutor-frontend:${GIT_TAG}"
-          fi
-
-          echo "BACKEND_IMAGE=${REPO}/aitutor-backend" >> $GITHUB_OUTPUT
-          echo "FRONTEND_IMAGE=${REPO}/aitutor-frontend" >> $GITHUB_OUTPUT
-          echo "BACKEND_TAGS=${BACKEND_TAGS}" >> $GITHUB_OUTPUT
-          echo "FRONTEND_TAGS=${FRONTEND_TAGS}" >> $GITHUB_OUTPUT
-
-      - name: Build & Push Backend
+      - name: Build & Push Backend (latest only)
         uses: docker/build-push-action@v6
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ steps.prep.outputs.BACKEND_TAGS }}
-          cache-from: type=registry,ref=${{ steps.prep.outputs.BACKEND_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ steps.prep.outputs.BACKEND_IMAGE }}:buildcache,mode=max
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
 
-      - name: Build & Push Frontend
+      - name: Build & Push Frontend (latest only)
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ steps.prep.outputs.FRONTEND_TAGS }}
-          cache-from: type=registry,ref=${{ steps.prep.outputs.FRONTEND_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ steps.prep.outputs.FRONTEND_IMAGE }}:buildcache,mode=max
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-frontend:buildcache,mode=max
