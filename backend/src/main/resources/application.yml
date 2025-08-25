@@ -1,9 +1,8 @@
-# ---------- 共用（所有 profile 都會套用） ----------
 springdoc:
   packages-to-scan: com.example.aitutor.web
 
 server:
-  port: ${PORT:8080}             # Railway 會給 PORT；本機則預設 8080
+  port: ${PORT:8080}             # Railway 給 PORT，本機 fallback 8080
   forward-headers-strategy: native
 
 logging.level:
@@ -14,42 +13,20 @@ openai:
   api-key: ${OPENAI_API_KEY:}
   model: gpt-4o-mini
 
-# ---------- local（開發機） ----------
----
 spring:
-  config:
-    activate:
-      on-profile: local
   datasource:
-    url: jdbc:postgresql://localhost:5432/aitutor
-    username: postgres
-    password: talen168168
-  jpa:
-    hibernate:
-      ddl-auto: update           # 本機可用 update 方便開發（或你要 validate 也行）
-    properties:
-      hibernate.jdbc.time_zone: UTC
-      hibernate.format_sql: true
-    open-in-view: false
-  flyway:
-    enabled: false               # 本機沒有 migration 就先關掉；若有就改成 true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://roundhouse.proxy.rlwy.net:5432/railway}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:aryytxuUQPgZRCXAxGxiMRnlWAMOJEoU}
 
-# ---------- prod（Railway） ----------
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: validate         # 線上用 validate，交由 Flyway 管 schema
+      ddl-auto: validate
     properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.jdbc.time_zone: UTC
       hibernate.format_sql: true
     open-in-view: false
+
   flyway:
     enabled: true
