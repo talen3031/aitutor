@@ -4,7 +4,7 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn -q -e -DskipTests dependency:go-offline
 COPY src ./src
-RUN mvn -q -DskipTests package -DskipTests
+RUN mvn -q clean -DskipTests package
 
 # ===== Runtime stage =====
 FROM eclipse-temurin:21-jre
@@ -14,4 +14,4 @@ COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 USER appuser
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-local} $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:prod} $JAVA_OPTS -jar /app/app.jar"]
