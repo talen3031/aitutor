@@ -14,4 +14,4 @@ COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 USER appuser
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-local} $JAVA_OPTS -jar /app/app.jar"]
