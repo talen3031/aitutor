@@ -1,15 +1,17 @@
-FROM node:20-alpine AS build
+# ===== Build stage =====
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-# 把 API_BASE 傳進去
-ARG VITE_API_BASE
-ENV VITE_API_BASE=$VITE_API_BASE
-RUN npm run build
+COPY pom.xml .
+RUN mvn -q -e -DskipTests dependency:go-offline
+COPY src ./src
+RUN mvn -q -DskipTests package -DskipTests
 
-FROM nginx:alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# ===== Runtime stage =====
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+RUN useradd -m appuser
+COPY --from=build /app/target/*.jar /app/app.jar
+EXPOSE 8080
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+USER appuser
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]

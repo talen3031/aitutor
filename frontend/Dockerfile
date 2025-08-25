@@ -1,18 +1,19 @@
-# ====== Build stage ======
+# ===== Build stage =====
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# 若需要在 build 時帶入 API 位址：
-#   npm run build -- --base=/  依你專案腳本調整
+ARG VITE_API_BASE
+ENV VITE_API_BASE=$VITE_API_BASE
 RUN npm run build
 
-# ====== Runtime stage (Nginx) ======
+# ===== Run stage =====
 FROM nginx:alpine
-# Nginx SPA 設定：所有路由回 index.html（避免 F5 404）
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
+
+# 在容器啟動前修改 default.conf，加上 SPA fallback
+RUN sed -i '/location \/ {/a \ \ \ \ try_files $uri /index.html;' /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]
