@@ -2,7 +2,11 @@ package com.example.aitutor.article;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +62,31 @@ public class ArticleService {
     return repo.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Article not found: " + id));
   }
+  
+  public Map<String,Object> findAllPaged(int page, int size, String q) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Article> result;
 
+    if (q != null && !q.isBlank()) {
+      result = repo.findByTitleContainingIgnoreCaseOrSourceContainingIgnoreCase(q, q, pageable);
+    } else {
+      result = repo.findAll(pageable);
+    }
+
+  return Map.of(
+    "content", result.getContent().stream().map(a -> Map.of(
+        "id", a.getId(),
+        "title", a.getTitle(),
+        "source", a.getSource(),
+        "url", a.getSourceUrl(),
+        "fetchedAt", a.getFetchedAt()
+    )).toList(),
+    "page", result.getNumber(),
+    "size", result.getSize(),
+    "totalElements", result.getTotalElements(),
+    "totalPages", result.getTotalPages()
+  );
+}
   // 若其他服務需要，可用這個別名；或直接呼叫 get(id) 也行
   @Transactional(readOnly = true)
   public Article findById(Long id) {

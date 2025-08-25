@@ -8,7 +8,7 @@ import ArticleViewer from './components/ArticleViewer.jsx';
 import ExerciseGenerator from './components/ExerciseGenerator.jsx';
 import ExerciseViewer from './components/ExerciseViewer.jsx';
 import SubmissionForm from './components/SubmissionForm.jsx';
-
+import ArticleList from './components/ArticleList.jsx';
 const { Header, Content, Footer } = Layout;
 
 export default function App() {
@@ -16,14 +16,16 @@ export default function App() {
   const nav = useNavigate();
 
   const selected = useMemo(() => {
-    if (loc.pathname.startsWith('/exercises/generate')) return ['/exercises/generate'];
-    if (loc.pathname.startsWith('/exercises/')) return ['/exercises'];
-    if (loc.pathname.startsWith('/submit/')) return ['/submit'];
-    return ['/'];
-  }, [loc.pathname]);
+  if (loc.pathname.startsWith('/articles')) return ['/articles'];
+  if (loc.pathname.startsWith('/exercises/generate')) return ['/exercises/generate'];
+  if (loc.pathname.startsWith('/exercises/')) return ['/exercises'];
+  if (loc.pathname.startsWith('/submit/')) return ['/submit'];
+  return ['/'];
+}, [loc.pathname]);
 
   const items = [
     { key: '/', icon: <FileTextOutlined />, label: <Link to="/">抓文章</Link> },
+    { key: '/articles', icon: <FileTextOutlined />, label: <Link to="/articles">文章列表</Link> },
     { key: '/exercises/generate', icon: <ExperimentOutlined />, label: <Link to="/exercises/generate">產生題組</Link> }
   ];
 
@@ -39,6 +41,7 @@ export default function App() {
         <Content className="container" style={{ padding: 24 }}>
           <Routes>
             <Route path="/" element={<ArticleFetcher />} />
+            <Route path="/articles" element={<ArticleList />} />
             <Route path="/articles/:id" element={<ArticleViewer />} />
             <Route path="/exercises/generate" element={<ExerciseGenerator />} />
             <Route path="/exercises/:id" element={<ExerciseViewer />} />

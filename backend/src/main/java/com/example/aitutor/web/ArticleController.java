@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aitutor.article.Article;
@@ -38,7 +39,14 @@ public class ArticleController {
         "paragraphs", paragraphs
     );
   }
-
+  @GetMapping
+  public Map<String,Object> listAll(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String q
+  ) {
+    return articleService.findAllPaged(page, size, q);
+  }
   @GetMapping("/{id}")
   public Map<String, Object> get(@PathVariable Long id) {
     Article a = articleService.get(id);
