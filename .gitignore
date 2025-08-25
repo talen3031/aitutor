@@ -23,7 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
-package-lock.json
 # 如果你希望鎖定版本，可拿掉上行。一般團隊建議保留鎖檔。
 
 # Vite / Build outputs
@@ -43,12 +42,7 @@ target/
 *.war
 *.ear
 
-# Spring/Boot config secrets（請用 example 版本）
-application*.yml
-application*.yaml
-application*.properties
-!application-example.yml
-!application-example.properties
+
 
 # Maven Wrapper（保留 wrapper，但可忽略某些暫存）
 .mvn/wrapper/maven-wrapper.properties
