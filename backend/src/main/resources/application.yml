@@ -10,14 +10,14 @@ logging.level:
   org.hibernate.SQL: warn
 
 openai:
-  api-key: ${OPENAI_API_KEY:}
+  api-key: ${OPENAI_API_KEY}
   model: gpt-4o-mini
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://roundhouse.proxy.rlwy.net:5432/railway}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:aryytxuUQPgZRCXAxGxiMRnlWAMOJEoU}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
@@ -29,4 +29,4 @@ spring:
     open-in-view: false
 
   flyway:
-    enabled: true
+    enabled: false
