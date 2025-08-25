@@ -22,5 +22,7 @@ public class EnvLog {
         System.out.println("✅ [EnvLog] spring.datasource.url = " + dbUrl);
         System.out.println("✅ [EnvLog] spring.datasource.username = " + dbUser);
         System.out.println("✅ [EnvLog] spring.datasource.password = " + (dbPass.isEmpty() ? "(empty)" : "(provided)"));
+        System.out.println("✅ [DEBUG] OPENAI_API_KEY = " + System.getenv("OPENAI_API_KEY"));
     }
+    
 }
