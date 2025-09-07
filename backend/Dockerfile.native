@@ -1,8 +1,11 @@
 # syntax=docker/dockerfile:1
 
 ### ===== Build stage =====
-# 這個 image 已經包含 GraalVM + native-image + Maven
-FROM ghcr.io/graalvm/native-image-maven:21 AS build
+FROM ghcr.io/graalvm/native-image-community:21 AS build
+
+# 安裝 Maven (base 是 Oracle Linux，用 microdnf)
+USER root
+RUN microdnf install -y maven && microdnf clean all
 
 WORKDIR /app
 COPY pom.xml .
