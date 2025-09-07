@@ -12,7 +12,9 @@ WORKDIR /app
 RUN useradd -m appuser
 COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+#ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xms64m -Xmx256m"
+
 USER appuser
 ENTRYPOINT exec java \
   -DOPENAI_API_KEY=${OPENAI_API_KEY} \
