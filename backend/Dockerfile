@@ -1,29 +1,22 @@
-# syntax=docker/dockerfile:1
-
-### ===== Build stage =====
-FROM ghcr.io/graalvm/graalvm-community:21 AS build
-RUN gu install native-image
-
+# ===== Build stage =====
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn -q -DskipTests dependency:go-offline
+RUN mvn -q -e -DskipTests dependency:go-offline
 COPY src ./src
+RUN mvn -q clean -DskipTests package
 
-# 生成原生執行檔 (會放在 target/aitutor)
-RUN mvn -q -Pnative -DskipTests native:compile
-
-### ===== Runtime stage =====
-FROM alpine:3.19
-RUN adduser -D appuser
+# ===== Runtime stage =====
+FROM eclipse-temurin:21-jre
 WORKDIR /app
-
-# 讓 https 請求可用（例如連 DB / OpenAI API）
-RUN apk add --no-cache ca-certificates
-
-# 複製 binary（注意名稱可能是 aitutor 或你 pom.xml 裡的 artifactId）
-COPY --from=build /app/target/aitutor /app/app
-
+RUN useradd -m appuser
+COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
-USER appuser
+#ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xms64m -Xmx256m"
 
-ENTRYPOINT ["/app/app"]
+USER appuser
+ENTRYPOINT exec java \
+  -DOPENAI_API_KEY=${OPENAI_API_KEY} \
+  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-local} \
+  $JAVA_OPTS -jar /app/app.jar
