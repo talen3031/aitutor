@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ### ===== Build stage =====
-# 換成已經有 native-image 的 GraalVM 社群版
-FROM ghcr.io/graalvm/native-image-community:21 AS build
+# 這個 image 已經包含 GraalVM + native-image + Maven
+FROM ghcr.io/graalvm/native-image-maven:21 AS build
 
 WORKDIR /app
 COPY pom.xml .
