@@ -24,6 +24,7 @@ CREATE TABLE exercise_set (
   UNIQUE(article_id, difficulty, spec)
 );
 
+
 -- 使用者提交表 (新版，JSONB 儲存答案與結果)
 CREATE TABLE submissions (
   id BIGSERIAL PRIMARY KEY,

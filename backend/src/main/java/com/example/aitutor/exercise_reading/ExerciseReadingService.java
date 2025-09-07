@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise;
+package com.example.aitutor.exercise_reading;
 
 import java.util.List;
 import java.util.Map;
@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ExerciseService {
+public class ExerciseReadingService {
 
   private final ArticleService articleService;
-  private final ExerciseSetRepository repo;
-  private final QuestionGenService questionGenService;
+  private final ExerciseSetReadingRepository repo;
+  private final ReadingQuestionGenService questionGenService;
   private final ObjectMapper objectMapper; // Spring Boot 會自動提供
 
   /**
@@ -55,7 +55,7 @@ public class ExerciseService {
         count
     );
 
-    ExerciseSet set = ExerciseSet.builder()
+    ExerciseSetReading set = ExerciseSetReading.builder()
         .article(article)
         .difficulty(difficulty)
         .spec(spec)       // jsonb：Map<String,Object>
@@ -70,7 +70,7 @@ public class ExerciseService {
    * 依 id 取得題組，無則拋錯（配合 Controller 的 get(Long) 呼叫）
    */
   @Transactional(readOnly = true)
-  public ExerciseSet get(Long id) {
+  public ExerciseSetReading get(Long id) {
     return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("ExerciseSet %d not found".formatted(id)));
         
   }

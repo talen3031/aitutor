@@ -1,4 +1,4 @@
-package com.example.aitutor.submission;
+package com.example.aitutor.submission_listening;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 儲存一次作答提交結果（對應一個 ExerciseSet）
+ * 儲存一次聽力作答提交結果（對應一個 ExerciseSetListening）
  * - answers: 使用者送出的原始答案（原封不動存 jsonb）
  * - results: 系統比對後的逐題結果（含是否正確、正解、使用者答案、解析）
  */
@@ -31,8 +31,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "submissions")
-public class Submission {
+@Table(name = "submissions_listening")
+public class ListeningSubmission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

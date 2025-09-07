@@ -9,15 +9,25 @@ logging.level:
   com.example.aitutor: DEBUG
   org.hibernate.SQL: warn
 
+
 openai:
   api-key: ${OPENAI_API_KEY}
   model: gpt-4o-mini
 
+r2:
+    accountId: ${R2_ACCOUNT_ID}
+    accessKeyId: ${R2_ACCESS_KEY_ID}
+    secretAccessKey: ${R2_SECRET_ACCESS_KEY}
+    bucket: ${R2_BUCKET}
+    # 建議把 R2 綁上自訂網域並指向 bucket 下的 audio/ 前綴
+    # 例如 https://cdn.yourdomain.com/audio/
+    publicBaseUrl: ${R2_PUBLIC_BASE_URL}
+
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL_LOCALHOST}
+    username: ${SPRING_DATASOURCE_USERNAME_LOCALHOST}
+    password: ${SPRING_DATASOURCE_PASSWORD_LOCALHOST}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -26,6 +36,10 @@ spring:
       hibernate.jdbc.time_zone: UTC
       hibernate.format_sql: true
     open-in-view: false
+  audio:
+    #storage: local
+    storage: r2
+  
 
   flyway:
-    enabled: true
+    enabled: false
