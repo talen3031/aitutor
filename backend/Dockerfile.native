@@ -17,11 +17,15 @@ RUN mvn -q -Pnative -DskipTests native:compile
 
 ### ===== Runtime stage =====
 FROM alpine:3.19
+
+# 補上必要的動態函式庫，避免缺少依賴
+RUN apk add --no-cache \
+      libstdc++ \
+      zlib \
+      ca-certificates
+
 RUN adduser -D appuser
 WORKDIR /app
-
-# 讓 https 請求可用（例如連 DB / OpenAI API）
-RUN apk add --no-cache ca-certificates
 
 # 複製 binary（注意名稱可能是 aitutor 或 pom.xml 裡的 artifactId）
 COPY --from=build /app/target/aitutor /app/app
