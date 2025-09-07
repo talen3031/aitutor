@@ -27,17 +27,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Backend (latest only)
+      # # ===== Backend JVM (latest) =====
+      # - name: Build & Push Backend (JVM, latest)
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./backend
+      #     file: ./backend/Dockerfile
+      #     push: true
+      #     platforms: linux/amd64
+      #     tags: |
+      #       ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
+      #     cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
+      #     cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
+
+      # ===== Backend Native =====
+      - name: Build & Push Backend (Native)
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          file: ./backend/Dockerfile
+          file: ./backend/Dockerfile.native
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
-      
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:native
+
+      # ===== Frontend =====
       - name: Build & Push Frontend (latest only)
         uses: docker/build-push-action@v6
         with:
