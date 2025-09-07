@@ -27,18 +27,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # ===== Backend JVM (latest) =====
-      - name: Build & Push Backend (JVM, latest)
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          platforms: linux/amd64
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
+      # # ===== Backend JVM (latest) =====
+      # - name: Build & Push Backend (JVM, latest)
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./backend
+      #     file: ./backend/Dockerfile
+      #     push: true
+      #     platforms: linux/amd64
+      #     tags: |
+      #       ${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:latest
+      #     cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache
+      #     cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aitutor-backend:buildcache,mode=max
 
       # ===== Backend Native =====
       - name: Build & Push Backend (Native)
