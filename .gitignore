@@ -25,6 +25,9 @@ pnpm-debug.log*
 .pnpm-debug.log*
 # 如果你希望鎖定版本，可拿掉上行。一般團隊建議保留鎖檔。
 
+# === Ignore generated audio files ===
+backend/src/main/resources/static/audio/
+
 # Vite / Build outputs
 dist/
 .build/

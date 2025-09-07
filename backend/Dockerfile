@@ -13,7 +13,7 @@ RUN useradd -m appuser
 COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
 #ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
-ENV JAVA_OPTS="-XX:+UseContainerSupport -Xms64m -Xmx256m"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xms16m -Xmx64m"
 
 USER appuser
 ENTRYPOINT exec java \
