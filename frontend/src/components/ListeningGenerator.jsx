@@ -59,7 +59,7 @@ export default function ListeningGenerator() {
         </Form.Item>
 
         <Form.Item
-            label="主題（topic）"
+            label="主題"
             name="topic"
             rules={[{ required: true, message: '請輸入主題（例如 finance, travel）' }]}
             getValueFromEvent={(e) => e.target.value.replace(/\s+/g, '')}  // ⭐ 自動移除所有空格
@@ -67,7 +67,7 @@ export default function ListeningGenerator() {
             <Input placeholder="e.g., finance, travel, campus" />
         </Form.Item>
 
-        <Form.Item label="體裁（genre）" name="genre">
+        <Form.Item label="題型" name="genre">
           <Select
             options={[
               { label: '對話', value: 'dialogue' },

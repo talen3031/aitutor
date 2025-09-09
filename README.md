@@ -1,6 +1,6 @@
 # AITutor
 
-一個 AI 輔助的線上學習平台，提供文章抓取、題目生成與作答功能。  
+一個 AI 輔助的線上學習平台，透過串接OpenAI API (GPT-4o-mini,GPT-4o-mini-TTS)，提供文章抓取、題目生成與作答功能。  
 專案採用 **前後端分離架構**，包含：
 
 - **後端 (backend)**：Java Spring Boot  / PostgreSQL / JPA
@@ -9,40 +9,65 @@
 ---
 
 ### 系統架構圖
-```text
 
+```text
 [前端 React + Vite + Ant Design]
+   │
+   ├─ 文章管理：/api/articles/*
+   ├─ 閱讀題目：/api/exercises/reading/*, /api/submissions/reading
+   └─ 聽力題目：/api/exercises/listening/*, /api/submissions/listening
    │
    ▼
 [Spring Boot REST API]
-   ├── ArticleController 
-   │       → ArticleService 
-   │       → ArticleRepository 
+   ├── Article_Controller
+   │       → ArticleService
+   │       → ArticleRepository
    │       → [article 表]
    │
-   ├── ExerciseController 
-   │       → ExerciseService 
-   │       → QuestionGenService 
-   │       → PromptFactory 
-   │       → LlmClient(OpenAiLlmClient) → [OpenAI GPT-4o-mini]
-   │       → ExerciseSetRepository 
-   │       → [exercise_set 表]
+   ├── Exercise_Reading_Controller (閱讀題組)
+   │       → Exercise_Reading_Service
+   │       → Reading_Question_GenService
+   │       → Reading_PromptFactory
+   │       → LlmClient(OpenAiLlmClient) ──► [OpenAI GPT-4o-mini]
+   │       → ExerciseSet_Reading_Repository
+   │       → [exercise_set_readings 表]
    │
-   └── SubmissionController 
-           → SubmissionService 
-           → SubmissionRepository 
-           → [submissions 表]
+   ├── Exercise_Listening_Controller (聽力題組)
+   │       → Exercise_Listening_Service
+   │       → Listening_Question_GenService
+   │       → Listening_PromptFactory
+   │       → LlmClient(OpenAiLlmClient) ──► [OpenAI GPT-4o-mini]
+   │       → OpenAiTtsClient ───────────────► [OpenAI TTS]
+   │       → ExerciseSet_Listening_Repository
+   │       → [exercise_set_listening 表 ]
+   │
+   ├── Reading_Submission_Controller (閱讀作答)
+   │       → Reading_SubmissionService
+   │       → Reading_SubmissionRepository
+   │       → [submissions_reading 表]
+   │
+   └── Listening_Submission_Controller (聽力作答)
+           → Listening_SubmissionService
+           → Listening_SubmissionRepository
+           → [submissions_listening 表]
+   │
+   └─ 物件儲存
+           → Cloudflare R2 /audio/listening_*.mp3
+             （Public Base URL 供前端播放）
 
    │
    ▼
-[PostgreSQL @ Railway]
+[PostgreSQL]
    ├── article
-   ├── exercise_set
-   └── submission
+   ├── exercise_set_reading
+   ├── exercise_set_listening
+   ├── submissions_reading
+   └── submissions_listening
 
 [外部服務]
-   ├── JsoupFetcher → [新聞/文章來源網站]
-   └── OpenAiLlmClient → [OpenAI API GPT-4o-mini]
+   ├── JsoupFetcher ──► [新聞/文章來源網站]
+   ├── OpenAiLlmClient ──► [OpenAI API: GPT-4o-mini]
+   └── OpenAiTtsClient ──► [OpenAI API: GPT-4o-mini-TTS]
 
 ```
 ---
@@ -85,12 +110,12 @@ User
   │  (選擇文章 + 難度 + 題型數量)
   ▼
 Frontend (React)
-  │  POST /api/exercises/generate {articleId, difficulty, types, count}
+  │  POST /api/exercises/reading/generate 
   ▼
-ExerciseController
+Exercise_Reading Controller
   │
   ▼
-ExerciseService
+Exercise_Reading Service
   │──> 讀取 ArticleRepository (拿文章內容)
   │──> 建立 spec (難度/題型/數量)
   │──> ExerciseSetRepository 檢查是否已有相同題組
@@ -110,6 +135,32 @@ ExerciseService
 回傳 {exerciseSetId}
 
 ```
+### 聽力功能
+- 串接 **OPENAI API (GPT-4o-mini)** 產生聽力練習題目。  
+- 系統會生成 **英文聽力稿 (transcript)**、對應的 **選擇題**，並透過 **TTS (Text-to-Speech)** 產生可播放的 MP3 音檔。  
+- 支援題目難度、主題、體裁（對話 / 短文）設定。  
+- 使用者可作答並提交，後端自動評分。  
+
+- 聽力題組生成流程:
+```text
+User
+  │  (選擇主題 + 難度 + 體裁 + 題數)
+  ▼
+Frontend (React)
+  │  POST /api/exercises/listening/generate {difficulty, topic, genre, numQuestions}
+  ▼
+Exercise_ListeningController
+  │
+  ▼
+Exercise_Listening Service
+  │──> ListeningPromptFactory (組 prompt)
+  │──> OpenAiLlmClient (呼叫 GPT-4o-mini 產生 transcript+questions JSON)
+  │──> ListeningQuestionGenService 解析題目
+  │──> OpenAiTtsClient (產生 mp3 語音檔，存放到 Cloudflare R2)
+  │──> ExerciseSetListeningRepository.save()
+  ▼
+回傳 {exerciseSetId, transcript, audioUrl, questions[]}
+```
 ### 作答與提交
 - 使用者可直接在前端進行作答。  
 - 提交答案後，後端會自動評分，並回傳詳細結果：  
@@ -118,14 +169,16 @@ ExerciseService
   - 正確答案與使用者答案  
   - 解釋文字  
 - 交卷評分流程:
+
 ```text
 User
   │  (填完答案 → 提交)
   ▼
 Frontend (React)
   │  POST /api/submission {exerciseSetId, answers}
+  │  POST /api/submissions/listening {exerciseSetId, answers}
   ▼
-SubmissionController
+ReadingSubmissionController / ListeningSubmissionController
   │
   ▼
 SubmissionService
