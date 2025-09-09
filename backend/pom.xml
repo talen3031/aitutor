@@ -37,6 +37,9 @@
     <!-- Test -->
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
     <dependency><groupId>org.mockito</groupId><artifactId>mockito-core</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-webflux</artifactId></dependency>
+    <!-- AWS SDK v2 - S3 (給 Cloudflare R2 用) -->
+    <dependency><groupId>software.amazon.awssdk</groupId><artifactId>s3</artifactId> <version>2.25.64</version></dependency>
   </dependencies>
 
   <build>

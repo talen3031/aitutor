@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise;
+package com.example.aitutor.exercise_reading;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PromptFactory {
+public class ReadingPromptFactory {
 
   public String build(String passage, String diff, List<String> types, Map<String,Integer> count) {
     StringBuilder sb = new StringBuilder();

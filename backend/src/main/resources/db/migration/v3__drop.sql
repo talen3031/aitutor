@@ -1,0 +1,2 @@
+ALTER TABLE exercise_set_listening
+DROP CONSTRAINT exercise_set_listening_difficulty_spec_key;

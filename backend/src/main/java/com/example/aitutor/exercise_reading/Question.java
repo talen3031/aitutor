@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise;
+package com.example.aitutor.exercise_reading;
 
 import lombok.*;
 import java.util.List;

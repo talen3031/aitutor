@@ -71,14 +71,12 @@ export default function ArticleList() {
                     title={
                       // 讓 TITLE 完整顯示：改成直向排版＋可換行
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <Link to={`/articles/${id}`} style={{ textDecoration: 'none' }}>
-                          <span style={{ fontWeight: 700, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                            {title}
-                          </span>
-                        </Link>
-                        <Tag style={{ width: 'auto', alignSelf: 'flex-start' }}>
+                          <Tag style={{ width: 'auto', alignSelf: 'flex-start' }}>
                                         {source}
-                                        </Tag>
+                        </Tag>
+                        
+                        
+                      
                       </div>
                     }
                     actions={[
@@ -86,13 +84,20 @@ export default function ArticleList() {
                       <Button
                         key="gen"
                         type="primary"
-                        onClick={() => nav('/exercises/generate', { state: { articleId: id } })}
-                      >
+                        onClick={() => nav('/exercises/generate', 
+                          { state: {  articleId: id,
+                                        title: a.title,
+                                        url: a.url || a.sourceUrl } })}>
                         以此生成題組
                       </Button>
-                    ]}
-                  >
-                    {/* 需要的話也可在這裡放其他資訊（例如抓取時間） */}
+                    ]}>
+                  
+                     {/* 內容區：顯示 文章內容 */}
+                    <Link to={`/articles/${id}`} style={{ textDecoration: 'none' }}>
+                          <span style={{ fontWeight: 700, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                            {title}
+                          </span>
+                    </Link>
                   </Card>
                 </List.Item>
               );

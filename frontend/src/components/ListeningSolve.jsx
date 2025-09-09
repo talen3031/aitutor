@@ -1,32 +1,21 @@
-// src/components/ExerciseViewer.jsx
-import React,{ useEffect, useMemo, useState } from 'react';
+// src/components/ListeningSolve.jsx
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  Card, List, Typography, Skeleton, Space, Button, Tag, Descriptions,
+  Card, List, Typography, Skeleton, Space, Button, Tag,
   Form, Radio, Input, Alert
 } from 'antd';
-import { getExerciseSet } from '../api/reading_exercises.js';
-import { getArticle } from '../api/articles.js';
-import { submitAnswers } from '../api/reading_submissions.js';
-
+import { getListeningExercise } from '../api/listening_exercises';
+import { submitListeningAnswers } from '../api/listening_submissions';
 const { Text, Paragraph } = Typography;
-const difficultyColorMap = {
-  easy: "green",
-  medium: "yellow",
-  hard: "red",
-};
 
-export default function ExerciseViewer() {
+export default function ListeningSolve() {
   const { id } = useParams();
 
-  // 題組 & 文章載入狀態
+  // 題組載入狀態
   const [ex, setEx] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
-
-  const [article, setArticle] = useState(null);
-  const [articleErr, setArticleErr] = useState('');
-  const [articleLoading, setArticleLoading] = useState(false);
 
   // 作答狀態
   const [answers, setAnswers] = useState({});
@@ -34,32 +23,20 @@ export default function ExerciseViewer() {
   const [submitErr, setSubmitErr] = useState('');
   const [result, setResult] = useState(null); // 後端評分回傳
 
-  // 載入題組 + 文章
+  // ⭐ 新增：Transcript 收合控制
+  const [showTranscript, setShowTranscript] = useState(false);
+
+  // 取得題組（含音檔與 transcript）
   useEffect(() => {
     (async () => {
       try {
         setErr('');
         setLoading(true);
-        setArticle(null);
-        setArticleErr('');
         setResult(null);
         setSubmitErr('');
 
-        const data = await getExerciseSet(id);
+        const data = await getListeningExercise(id);
         setEx(data);
-
-        const aid = data?.articleId ?? data?.spec?.articleId;
-        if (aid) {
-          setArticleLoading(true);
-          try {
-            const a = await getArticle(aid);
-            setArticle(a);
-          } catch (e) {
-            setArticleErr(e?.response?.data?.message || e.message || '文章讀取失敗');
-          } finally {
-            setArticleLoading(false);
-          }
-        }
       } catch (e) {
         setErr(e?.response?.data?.message || e.message || '讀取失敗');
       } finally {
@@ -68,7 +45,7 @@ export default function ExerciseViewer() {
     })();
   }, [id]);
 
-  // 依題型初始化答案（MCQ 用選項索引 number；其他題型用字串）
+  // 依題型初始化答案：MCQ 用索引 number；（保留彈性：若未來有簡答題，以字串處理）
   const initAnswers = useMemo(() => {
     if (!ex || !Array.isArray(ex.items)) return {};
     const ans = {};
@@ -80,24 +57,23 @@ export default function ExerciseViewer() {
 
   useEffect(() => setAnswers(initAnswers), [initAnswers]);
 
-  // 送出作答（使用你先前設計的 payload：MCQ 傳索引）
+  // 提交（Listening API 預設採 B 案：answers: number[]）
   const onSubmit = async () => {
     if (!ex) return;
     setSubmitErr('');
     setSubmitting(true);
     try {
-      const responses = (ex.items || []).map((q, idx) => {
+      // 把物件 {0:2,1:0,...} 轉為陣列（MCQ 索引）
+      const arr = (ex.items || []).map((q, idx) => {
         const a = answers[idx];
-        if (Array.isArray(q?.options)) {
-          // 未作答給 -1（若後端不接受可改成 null 或其他預設）
-          return { index: idx, answer: (a === null || a === undefined) ? -1 : Number(a) };
-        }
-        return { index: idx, answer: a ?? '' };
+        return Array.isArray(q?.options)
+          ? (a === null || a === undefined ? -1 : Number(a))
+          : String(a ?? '');
       });
 
-      const payload = { exerciseSetId: Number(ex.id), responses };
-      const data = await submitAnswers(payload); // { score,total,submissionId,correct,exerciseSetId,results:[...] }
-      setResult(data);
+    const data = await submitListeningAnswers(Number(ex.id ?? id), arr);
+    setResult(data);                  // ⭐ 關鍵：顯示提交後的分數/詳解
+    setSubmitErr('');                 // 可選：清掉錯誤訊息
     } catch (e) {
       setSubmitErr(e?.response?.data?.message || e.message || '提交失敗');
     } finally {
@@ -111,15 +87,25 @@ export default function ExerciseViewer() {
 
   const items = ex.items || [];
   const difficulty = ex.difficulty ?? ex?.spec?.difficulty ?? '—';
-  const articleId = ex.articleId ?? ex?.spec?.articleId ?? '—';
+  const topic = ex?.spec?.topic ?? '—';
+  const genre = ex?.spec?.genre ?? '—';
+    const genreMap = {
+  short: "短文",
+  dialogue: "對話",
+};
 
-  // 文章欄位兼容處理
-  const sourceLink = article?.url || article?.sourceUrl || '';
-  const paragraphs = Array.isArray(article?.paragraphs) && article.paragraphs.length > 0
-    ? article.paragraphs
-    : String(article?.cleanedText || article?.text || '')
-        .split(/\n\s*\n/) // 以空白行切段，容錯更高
-        .filter(p => p.trim().length > 0);
+    const difficultyColorMap = {
+  easy: "green",
+  medium: "yellow",
+  hard: "red",
+};
+
+  // Transcript 斷行：以空白行優先；其次以單行換行
+  const paragraphs = String(ex?.transcript || '')
+    .split(/\n\s*\n/) // 空白行分段
+    .flatMap(p => p.split(/\n(?!$)/)) // 兼容單行換行
+    .map(s => s.trim())
+    .filter(Boolean);
 
   const renderResultSummary = () => {
     if (!result) return null;
@@ -131,8 +117,8 @@ export default function ExerciseViewer() {
           <Space wrap>
             <b>
             正確題數: {result.correct} </b>
-          </Space>
-        }
+            </Space>
+            }
         style={{ marginTop: 12 }}
       />
     );
@@ -153,7 +139,6 @@ export default function ExerciseViewer() {
                 <List.Item.Meta
                   title={
                     <Space>
-                      {/* 標題以問題內容呈現（粗體） */}
                       <b>Q{r.index + 1}. {r.prompt}</b>
                       {r.correct
                         ? <Tag color="green">✓ 正確</Tag>
@@ -161,7 +146,6 @@ export default function ExerciseViewer() {
                     </Space>
                   }
                 />
-                {/* 詳解不再重複印出題幹 */}
                 {isMCQ && (
                   <div style={{ marginBottom: 8 }}>
                     <div style={{ fontSize: 13, opacity: .8, marginBottom: 4 }}>選項：</div>
@@ -177,14 +161,12 @@ export default function ExerciseViewer() {
                     </ul>
                   </div>
                 )}
-
                 {!isMCQ && (
                   <Space wrap>
                     <Tag>你的答案：{String(r.userAnswer ?? '')}</Tag>
                     <Tag color="green">正解：{String(r.correctAnswer ?? '')}</Tag>
                   </Space>
                 )}
-
                 {r.explanation && (
                   <div style={{ marginTop: 8, background: '#fafafa', border: '1px solid #eee', borderRadius: 8, padding: 10 }}>
                     <b>解析：</b>
@@ -201,67 +183,70 @@ export default function ExerciseViewer() {
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      {/* 文章區塊 */}
-      <Card
-        title={
-          <Space align="center">
-          <Text style={{ fontSize: 25, fontWeight: 700 }}>{article.title}</Text>
-          {articleId && <Tag>{article?.source || 'N/A'}</Tag>}
-        </Space>
-        }
-        // extra={
-        //   <Space>
-        //     {articleId && (
-        //       <Link to={`/articles/${articleId}`}>
-        //         <Button>查看全文</Button>
-        //       </Link>
-        //     )}
-        //   </Space>
-        // }
-      >
-        {articleLoading && <Skeleton active paragraph={{ rows: 3 }} />}
-        {!articleLoading && articleErr && <Text type="danger">{articleErr}</Text>}
-        {!articleLoading && !articleErr && (
-          <>
-            <Descriptions column={1} size="small" bordered style={{ marginBottom: 12 }}>
-              <Descriptions.Item label="原文連結">
-                {sourceLink ? (
-                  <a href={sourceLink} target="_blank" rel="noreferrer">{sourceLink}</a>
-                ) : '—'}
-              </Descriptions.Item>
-            </Descriptions>
-
-            {/* ✅ 正確段落顯示：優先 paragraphs，否則用 cleanedText 分段 */}
-            {paragraphs.length > 0 ? (
-              paragraphs.map((p, i) => (
-                <Paragraph key={i} style={{ lineHeight: 1.7, marginBottom: 16 }}>
-                  {p}
-                </Paragraph>
-              ))
-            ) : (
-              <Paragraph>(無內容)</Paragraph>
-            )}
-          </>
-        )}
-      </Card>
-
-      {/* 題組 + 直接作答 */}
+      {/* 音檔 / Transcript 區塊（對齊閱讀版上方資訊卡的角色） */}
       <Card
         title={
           <Space>
-            題組 
+            英聽資訊
             <Tag color={ difficultyColorMap[difficulty] || "default" }>難度：{difficulty}</Tag>
-            
+            <Tag>topic：{topic}</Tag>
+            <Tag color="blue">{genreMap[genre] || genre}</Tag>
           </Space>
         }
-        //extra={<Space><Link to="/exercises/generate"><Button>回產生頁</Button></Link></Space>}
+        extra={
+          <Space>
+            {/* ⭐ 新增：收合／展開 transcript 的按鈕 */}
+            <Button
+            type={showTranscript ? "default" : "primary"}
+            danger={!showTranscript}     // 收合狀態時紅色更醒目
+            onClick={() => setShowTranscript(v => !v)}
+            >
+            {showTranscript ? '收合 transcript' : '展開 transcript'}
+            </Button>
+
+          </Space>
+        }
+      >
+        {/* 音檔播放器 */}
+        {ex.audioUrl ? (
+          <audio controls style={{ width: '100%', marginBottom: showTranscript ? 16 : 0 }}>
+            <source src={ex.audioUrl} />
+            Your browser does not support the audio element.
+          </audio>
+        ) : (
+          <Paragraph type="secondary">(此題組未提供音檔)</Paragraph>
+        )}
+
+        {/* Transcript（可卷軸） — 受 showTranscript 控制 */}
+        {showTranscript && (
+          paragraphs.length > 0 ? (
+            <div style={{ maxHeight: 320, overflow: 'auto', paddingRight: 8 }}>
+              {paragraphs.map((p, i) => (
+                <Paragraph key={i} style={{ lineHeight: 1.7, marginBottom: 12 }}>
+                  {p}
+                </Paragraph>
+              ))}
+            </div>
+          ) : (
+            <Paragraph type="secondary">(無 Transcript)</Paragraph>
+          )
+        )}
+      </Card>
+
+      {/* 題組 + 直接作答（樣式、行為比照 ExerciseViewer） */}
+      <Card
+        title={
+          <Space>
+            題組作答
+            <Tag color="blue">共 {items.length} 題</Tag>
+          </Space>
+        }
+       
       >
         <Form layout="vertical" onFinish={onSubmit}>
           {items.map((q, idx) => (
-            <Form.Item key={idx} label={<b>Q{idx + 1}. {q.prompt}</b>} required>
-              {/* 標題已呈現題幹，因此這裡不再重複印出 */}
+            <Form.Item key={idx} label={<b>Q{idx + 1}. {q.question}</b>} required>
               {Array.isArray(q.options) && q.options.length > 0 ? (
-                // MCQ：value 為「選項索引 number」
                 <Radio.Group
                   onChange={e => setAnswers(prev => ({ ...prev, [idx]: Number(e.target.value) }))}
                   value={answers[idx]}
@@ -271,23 +256,13 @@ export default function ExerciseViewer() {
                     <Radio key={i} value={i}>{opt}</Radio>
                   ))}
                 </Radio.Group>
-                  ) : q.type === 'tf' ? (
-                    <Radio.Group
-                      onChange={(e) => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))} // 直接存 boolean
-                      value={answers[idx]} // 讀取 boolean
-                      style={{ display: 'flex', gap: 12 }}
-                    >
-                      <Radio value={true}>True</Radio>
-                      <Radio value={false}>False</Radio>
-                    </Radio.Group>
-                  ) : (
-                  <Input
-                    placeholder="你的答案…"
-                    value={answers[idx] ?? ''}
-                    onChange={e => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
-                  />
-                )}
-
+              ) : (
+                <Input
+                  placeholder="你的答案…"
+                  value={answers[idx] ?? ''}
+                  onChange={e => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
+                />
+              )}
             </Form.Item>
           ))}
 

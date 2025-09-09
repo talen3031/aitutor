@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise.llm;
+package com.example.aitutor.llm;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;

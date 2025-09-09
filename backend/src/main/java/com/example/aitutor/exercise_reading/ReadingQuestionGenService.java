@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise;
+package com.example.aitutor.exercise_reading;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,15 +6,15 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.example.aitutor.exercise.llm.LlmClient;
+import com.example.aitutor.llm.LlmClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class QuestionGenService {
-  private final PromptFactory promptFactory;
+public class ReadingQuestionGenService {
+  private final ReadingPromptFactory promptFactory;
   private final ObjectMapper om;
   private final LlmClient llm;
 

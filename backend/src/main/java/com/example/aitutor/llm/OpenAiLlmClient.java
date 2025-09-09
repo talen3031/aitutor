@@ -1,4 +1,4 @@
-package com.example.aitutor.exercise.llm;
+package com.example.aitutor.llm;
 
 import java.time.Duration;
 import java.util.List;

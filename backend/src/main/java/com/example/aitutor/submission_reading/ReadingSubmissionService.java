@@ -1,4 +1,4 @@
-package com.example.aitutor.submission;
+package com.example.aitutor.submission_reading;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +11,9 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
-import com.example.aitutor.exercise.ExerciseSet;
-import com.example.aitutor.exercise.ExerciseSetRepository;
-import com.example.aitutor.exercise.Question;
+import com.example.aitutor.exercise_reading.ExerciseSetReading;
+import com.example.aitutor.exercise_reading.ExerciseSetReadingRepository;
+import com.example.aitutor.exercise_reading.Question;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,18 +32,18 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
-public class SubmissionService {
+public class ReadingSubmissionService {
 
-    private final ExerciseSetRepository exerciseSetRepository;
-    private final SubmissionRepository submissionRepository;
+    private final ExerciseSetReadingRepository exerciseSetRepository;
+    private final ReadingSubmissionRepository submissionRepository;
 
     @Transactional
-    public Submission submit(SubmitReq req) {
+    public ReadingSubmission submit(SubmitReq req) {
         // 1) 讀題組
-        ExerciseSet set = exerciseSetRepository.findById(req.exerciseSetId())
+        ExerciseSetReading set = exerciseSetRepository.findById(req.exerciseSetId())
                 .orElseThrow(() -> new NoSuchElementException("ExerciseSet not found: " + req.exerciseSetId()));
 
-        // ===== 這裡改成 List<Question>，修正你的編譯錯誤 =====
+        // ===== 這裡改成 List<Question>=====
         List<Question> items = set.getItems();
         if (items == null || items.isEmpty()) {
             throw new IllegalStateException("ExerciseSet has no items");
@@ -80,7 +80,7 @@ public class SubmissionService {
 
         double score = total == 0 ? 0.0 : (correct * 1.0 / total);
 
-        Submission s = Submission.builder()
+        ReadingSubmission s = ReadingSubmission.builder()
                 .exerciseSetId(set.getId())
                 .answers(req.raw())   // 保存原始提交（含 exerciseSetId + responses/answers）
                 .results(results)
