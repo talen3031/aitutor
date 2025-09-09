@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,11 @@ public class ArticleService {
   }
   
   public Map<String,Object> findAllPaged(int page, int size, String q) {
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(
+        page,
+        size,
+        Sort.by(Sort.Direction.DESC, "fetchedAt")  // 依 fetchedAt DESC 排序
+    );
     Page<Article> result;
 
     if (q != null && !q.isBlank()) {

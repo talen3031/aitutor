@@ -1,5 +1,6 @@
 package com.example.aitutor.exercise_listening;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class ExerciseListeningService {
     private final ListeningQuestionGenService questionGenService;
     private final ObjectMapper objectMapper;
     private final OpenAiTtsClient ttsClient;  
+    
     public ExerciseListeningService(
             ExerciseSetListeningRepository repository,
             ListeningQuestionGenService questionGenService,
@@ -33,7 +35,17 @@ public class ExerciseListeningService {
     }
 
     public List<ExerciseSetListening> findAll() {
-        return repository.findAll();
+        Map<String, Integer> difficultyOrder = Map.of(
+            "easy", 1,
+            "medium", 2,
+            "hard", 3
+        );
+        return repository.findAll().stream()
+                .sorted(Comparator
+                .comparing(ExerciseSetListening::getCreatedAt).reversed() // created_at DESC
+                .thenComparing(e -> difficultyOrder.getOrDefault(e.getDifficulty(), 99)) // 照固定順序
+                )
+                .toList();
     }
 
     public ExerciseSetListening findById(Long id) {
