@@ -35,10 +35,10 @@
    ├── Exercise_Listening_Controller (聽力題組)
    │       → Exercise_Listening_Service
    │       → Listening_Question_GenService
-   │       → Listening_PromptFactory
+   │       → Listening_PromptFactory                 
    │       → LlmClient(OpenAiLlmClient) ──► [OpenAI GPT-4o-mini]
-   │       → OpenAiTtsClient ───────────────► [OpenAI TTS]
-   │       → ExerciseSet_Listening_Repository
+   │       → OpenAiTtsClient ──────► [OpenAI TTS] ────► (物件儲存) Cloudflare R2 /audio/listening_*.mp3
+   │       → ExerciseSet_Listening_Repository 
    │       → [exercise_set_listening 表 ]
    │
    ├── Reading_Submission_Controller (閱讀作答)
@@ -50,10 +50,8 @@
            → Listening_SubmissionService
            → Listening_SubmissionRepository
            → [submissions_listening 表]
-   │
-   └─ 物件儲存
-           → Cloudflare R2 /audio/listening_*.mp3
-             （Public Base URL 供前端播放）
+   
+  
 
    │
    ▼
