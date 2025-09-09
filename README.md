@@ -45,15 +45,10 @@
    │       → Reading_SubmissionService
    │       → Reading_SubmissionRepository
    │       → [submissions_reading 表]
-   │
-   └── Listening_Submission_Controller (聽力作答)
-           → Listening_SubmissionService
-           → Listening_SubmissionRepository
-           → [submissions_listening 表]
-   
-  
-
-   │
+   │ Listening_Submission_Controller (聽力作答)
+   │        → Listening_SubmissionService
+   │        → Listening_SubmissionRepository
+   │        → [submissions_listening 表]
    ▼
 [PostgreSQL]
    ├── article
