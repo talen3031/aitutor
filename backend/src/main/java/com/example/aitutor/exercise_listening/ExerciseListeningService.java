@@ -1,16 +1,15 @@
 package com.example.aitutor.exercise_listening;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+// import org.springframework.data.domain.Sort;
 
 import com.example.aitutor.llm.OpenAiTtsClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -35,17 +34,9 @@ public class ExerciseListeningService {
     }
 
     public List<ExerciseSetListening> findAll() {
-        Map<String, Integer> difficultyOrder = Map.of(
-            "easy", 1,
-            "medium", 2,
-            "hard", 3
+        return repository.findAll(
+            // Sort.by(Sort.Order.desc("createdAt")) // created_at DESC
         );
-        return repository.findAll().stream()
-                .sorted(Comparator
-                .comparing(ExerciseSetListening::getCreatedAt).reversed() // created_at DESC
-                .thenComparing(e -> difficultyOrder.getOrDefault(e.getDifficulty(), 99)) // 照固定順序
-                )
-                .toList();
     }
 
     public ExerciseSetListening findById(Long id) {

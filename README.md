@@ -1,6 +1,7 @@
 # AITutor
 
-一個 AI 輔助的線上學習平台，透過串接OpenAI API (GPT-4o-mini,GPT-4o-mini-TTS)，提供文章抓取、題目生成與作答功能。  
+
+
 專案採用 **前後端分離架構**，包含：
 
 - **後端 (backend)**：Java Spring Boot  / PostgreSQL / JPA
