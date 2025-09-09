@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController 
 @RequestMapping("/api/exercises/reading") 
 @RequiredArgsConstructor
-public class ExerciseController {
+public class ExerciseReadingController {
   private final ExerciseReadingService service; private final ObjectMapper om;
   public record GenReq(@NotNull Long articleId,@NotBlank String difficulty,@NotNull List<String> types,@NotNull Map<String,Integer> count){}
   public record GenRes(Long exerciseSetId){}

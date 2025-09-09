@@ -1,8 +1,8 @@
 import React,{ useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Form, Radio, Input, Button, Space, Typography, Alert, Skeleton, Tag, List } from 'antd';
-import { getExerciseSet } from '../api/exercises.js';
-import { submitAnswers } from '../api/submissions.js';
+import { getExerciseSet } from '../api/reading_exercises.js';
+import { submitAnswers } from '../api/reading_submissions.js';
 
 const { Text } = Typography;
 
@@ -157,7 +157,7 @@ export default function SubmissionForm() {
   };
 
   return (
-    <Card title={`作答並交卷（題組 #${ex.id}）`}>
+    <Card title={`作答並交卷`}>
       <Form layout="vertical" onFinish={onSubmit}>
         {ex.items?.map((q, idx) => (
           <Form.Item
@@ -178,14 +178,22 @@ export default function SubmissionForm() {
                   <Radio key={i} value={i}>{opt}</Radio>
                 ))}
               </Radio.Group>
+              ) : q.type === 'tf' ? (
+              <Radio.Group
+                onChange={(e) => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))} // 直接存 boolean
+                value={answers[idx]} // 讀取 boolean
+                style={{ display: 'flex', gap: 12 }}
+              >
+                <Radio value={true}>True</Radio>
+                <Radio value={false}>False</Radio>
+              </Radio.Group>
             ) : (
-              // 其他題型：文字輸入
-              <Input
-                placeholder="你的答案…"
-                value={answers[idx] ?? ''}
-                onChange={e => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
-              />
-            )}
+                <Input
+                  placeholder="你的答案…"
+                  value={answers[idx] ?? ''}
+                  onChange={e => setAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
+                />
+              )}
           </Form.Item>
         ))}
 
