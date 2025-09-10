@@ -72,9 +72,9 @@ export default function ListeningGenerator() {
         <Form.Item label="難度" name="difficulty">
           <Select
             options={[
-              { label: 'easy', value: 'easy' },
-              { label: 'medium', value: 'medium' },
-              { label: 'hard', value: 'hard' },
+              { label: '簡單', value: 'easy' },
+              { label: '中等', value: 'medium' },
+              { label: '困難', value: 'hard' },
             ]}
           />
         </Form.Item>

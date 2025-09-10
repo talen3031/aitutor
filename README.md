@@ -132,7 +132,7 @@ Exercise_Reading Service
 ### 聽力功能
 - 串接 **OPENAI API (GPT-4o-mini)** 產生聽力練習題目。  
 - 系統會生成 **英文聽力稿 (transcript)**、對應的 **選擇題**，並透過 **TTS (Text-to-Speech)** 產生可播放的 MP3 音檔。  
-- 支援題目難度、主題、體裁（對話 / 短文）設定。  
+- 支援題目難度、主題(可設置多個)、體裁（對話 / 短文）設定。  
 - 使用者可作答並提交，後端自動評分。  
 
 - 聽力題組生成流程:
@@ -141,7 +141,7 @@ User
   │  (選擇主題 + 難度 + 體裁 + 題數)
   ▼
 Frontend (React)
-  │  POST /api/exercises/listening/generate {difficulty, topic, genre, numQuestions}
+  │  POST /api/exercises/listening/generate {difficulty, topics, genre, numQuestions}
   ▼
 Exercise_ListeningController
   │
