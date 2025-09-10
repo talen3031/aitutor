@@ -16,7 +16,6 @@ public class ListeningPromptFactory {
 
         return String.format("""
             You are an English teacher. Generate a English listening exercise in JSON.
-
             Requirements:
             - difficulty: %s
             - topic: %s
@@ -25,13 +24,11 @@ public class ListeningPromptFactory {
               %s
             - Include %d multiple-choice questions.
             - transcript and all questions/answers MUST be written in English.
-
             Each question:
             - question (string)
             - options (4 strings)
             - answer (index 0–3)
             - explanation (string)
-
             Output JSON only:
             {
               "transcript": "...",

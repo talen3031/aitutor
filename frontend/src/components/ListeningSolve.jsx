@@ -256,7 +256,6 @@ export default function ListeningSolve() {
             題組作答
           </Space>
         }
-       
       >
         <Form layout="vertical" onFinish={onSubmit}>
           {items.map((q, idx) => (
