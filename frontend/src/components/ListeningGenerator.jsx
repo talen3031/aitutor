@@ -7,12 +7,13 @@ export default function ListeningGenerator() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
-
+  
   // ✅ topics 本地狀態（自訂輸入 + 標籤顯示）
-  const [topics, setTopics] = useState(['商業']);
+  const [topics, setTopics] = useState([]);
   const [topicInput, setTopicInput] = useState('');
   const [topicErr, setTopicErr] = useState('');
-  
+  const [numErr, setNumErr] = useState('');
+
   const handleAddTopic = () => {
     const trimmed = topicInput.trim();
     if (!trimmed) return;
@@ -40,11 +41,26 @@ export default function ListeningGenerator() {
   const onFinish = async (values) => {
     setErr('');
     setLoading(true);
+    
     try {
+       // ✅ 題數檢查
+        if (values.numQuestions < 1 || values.numQuestions > 5) {
+          setNumErr('題數必須介於 1 到 5');
+          setLoading(false);
+          return;
+        } else {
+          setNumErr('');
+        }
+        // ✅ 主題檢查
+        if (topics.length === 0) {
+        setErr('請至少輸入一個主題');
+        setLoading(false);
+        return;
+      }
       const payload = {
         difficulty: values.difficulty,
         numQuestions: Number(values.numQuestions || 0),
-        topics: topics.length > 0 ? topics : ["general"], // ✅ 使用本地 topics 狀態
+        topics: topics,
         genre: values.genre,
       };
       const data = await generateListeningExercise(payload);
@@ -66,7 +82,7 @@ export default function ListeningGenerator() {
       <Form
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ difficulty: 'medium', numQuestions: 3, genre: 'short' }}
+        initialValues={{ difficulty: 'medium',genre: 'short' }}
         style={{ maxWidth: 520 }}
       >
         <Form.Item label="難度" name="difficulty">
@@ -79,13 +95,18 @@ export default function ListeningGenerator() {
           />
         </Form.Item>
         {/* ✅ 題數*/}
-        <Form.Item
-          label="題數"
-          name="numQuestions"
-          rules={[{ required: true, message: '請輸入題數' }]}
-        >
-          <InputNumber min={1} max={10} style={{ width: '100%' }} />
+        <Form.Item label="題數" name="numQuestions">
+          <InputNumber min={1} max={5} defaultValue={3} style={{ width: '100%' }} />
+          {numErr && (
+            <Alert
+              type="error"
+              showIcon
+              message={numErr}
+              style={{ marginTop: 8 }}
+            />
+          )}
         </Form.Item>
+
         {/* ✅題型選單*/}
         <Form.Item label="題型" name="genre">
           <Select
