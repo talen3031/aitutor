@@ -11,12 +11,26 @@ export default function ListeningGenerator() {
   // ✅ topics 本地狀態（自訂輸入 + 標籤顯示）
   const [topics, setTopics] = useState(['商業']);
   const [topicInput, setTopicInput] = useState('');
-
+  const [topicErr, setTopicErr] = useState('');
+  
   const handleAddTopic = () => {
-    if (topicInput && !topics.includes(topicInput)) {
-      setTopics([...topics, topicInput]);
+    const trimmed = topicInput.trim();
+    if (!trimmed) return;
+
+    // 中間包含空格 → 顯示錯誤
+    if (/\s/.test(trimmed) && trimmed.includes(' ')) {
+      setTopicErr('主題不能包含空格');
+      return;
     }
+
+    if (topics.includes(trimmed)) {
+      setTopicErr(`已包含主題「${trimmed}」`);
+      return;
+    }
+
+    setTopics([...topics, trimmed]);
     setTopicInput('');
+    setTopicErr('');
   };
 
   const handleRemoveTopic = (removed) => {
@@ -87,7 +101,10 @@ export default function ListeningGenerator() {
           <Input
             placeholder="輸入主題後按 Enter"
             value={topicInput}
-            onChange={(e) => setTopicInput(e.target.value)}
+            onChange={(e) => {
+              setTopicInput(e.target.value);
+              if (topicErr) setTopicErr(''); // 使用者輸入新字就清除錯誤
+            }}            
             onPressEnter={(e) => {
               e.preventDefault();
               handleAddTopic();
@@ -105,6 +122,14 @@ export default function ListeningGenerator() {
               </Tag>
             ))}
           </div>
+          {topicErr && (
+            <Alert
+              type="error"
+              showIcon
+              message={topicErr}
+              style={{ marginTop: 8 }}
+            />
+          )}
         </Form.Item>
         <Form.Item>
           <Space>
