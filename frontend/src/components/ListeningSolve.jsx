@@ -254,7 +254,6 @@ export default function ListeningSolve() {
         title={
           <Space>
             題組作答
-            <Tag color="blue">共 {items.length} 題</Tag>
           </Space>
         }
        
