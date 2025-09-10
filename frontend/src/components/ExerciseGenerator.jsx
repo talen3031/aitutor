@@ -75,7 +75,7 @@ export default function ExerciseGenerator() {
               />
             </Form.Item>
 
-            <Form.Item label="文章 URL">
+            <Form.Item label="原文連結">
               <Input.TextArea
                 value={state?.url || ''}
                 readOnly
@@ -87,9 +87,9 @@ export default function ExerciseGenerator() {
             <Form.Item label="難度" name="difficulty">
               <Select
                 options={[
-                  { label: 'easy', value: 'easy' },
-                  { label: 'medium', value: 'medium' },
-                  { label: 'hard', value: 'hard' }
+                  { label: '簡單', value: 'easy' },
+                  { label: '中等', value: 'medium' },
+                  { label: '困難', value: 'hard' }
                 ]}
               />
             </Form.Item>
@@ -104,7 +104,7 @@ export default function ExerciseGenerator() {
             </Form.Item>
 
             <Form.Item label="題數" name="count">
-              <InputNumber min={1} max={50} style={{ width: '100%' }} />
+              <InputNumber min={1} max={5} style={{ width: '100%' }} />
             </Form.Item>
 
             <Form.Item>

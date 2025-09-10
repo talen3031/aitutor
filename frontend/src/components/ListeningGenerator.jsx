@@ -44,8 +44,8 @@ export default function ListeningGenerator() {
     
     try {
        // ✅ 題數檢查
-        if (values.numQuestions < 1 || values.numQuestions > 5) {
-          setNumErr('題數必須介於 1 到 5');
+        if (values.numQuestions < 1 || values.numQuestions > 4) {
+          setNumErr('題數必須介於 1 到 4');
           setLoading(false);
           return;
         } else {
@@ -59,7 +59,7 @@ export default function ListeningGenerator() {
       }
       const payload = {
         difficulty: values.difficulty,
-        numQuestions: Number(values.numQuestions || 0),
+        numQuestions: Number(values.numQuestions),
         topics: topics,
         genre: values.genre,
       };
@@ -82,7 +82,7 @@ export default function ListeningGenerator() {
       <Form
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ difficulty: 'medium',genre: 'short' }}
+        initialValues={{ difficulty: 'medium', numQuestions: 3  ,genre: 'short' }}
         style={{ maxWidth: 520 }}
       >
         <Form.Item label="難度" name="difficulty">
@@ -96,23 +96,16 @@ export default function ListeningGenerator() {
         </Form.Item>
         {/* ✅ 題數*/}
         <Form.Item label="題數" name="numQuestions">
-          <InputNumber min={1} max={5} defaultValue={3} style={{ width: '100%' }} />
-          {numErr && (
-            <Alert
-              type="error"
-              showIcon
-              message={numErr}
-              style={{ marginTop: 8 }}
-            />
-          )}
+            <InputNumber min={1} max={4} style={{ width: '100%' }} />
+            
         </Form.Item>
 
         {/* ✅題型選單*/}
         <Form.Item label="題型" name="genre">
           <Select
             options={[
-              { label: '對話', value: 'dialogue' },
               { label: '短文', value: 'short' },
+              { label: '對話', value: 'dialogue' },
             ]}
           />
         </Form.Item>
