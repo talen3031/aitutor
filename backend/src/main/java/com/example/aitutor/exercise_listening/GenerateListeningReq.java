@@ -1,5 +1,7 @@
 package com.example.aitutor.exercise_listening;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,13 +34,15 @@ public class GenerateListeningReq {
     private int numQuestions = 3;
 
     @Schema(
-        description = "主題（例如：business, daily, travel）。空值將視為 general",
-        example = "business",
-        defaultValue = "general"
+    description = "主題列表（例如：business, daily, travel）。若空值則視為 [\"general\"]",
+    example = "[\"business\", \"travel\"]",
+    defaultValue = "[\"general\"]"
     )
-    @Size(max = 30, message = "topic 長度不可超過 30 字元")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]*$", message = "topic 僅允許英數、底線與連字號")
-    private String topic = "general";
+    private List<
+            @Size(max = 30, message = "topic 長度不可超過 30 字元")
+            @Pattern(regexp = "^[\\p{L}0-9_-]*$", message = "topic 僅允許中英文、數字、底線與連字號")
+            String
+        > topics = List.of("general");
 
     @Schema(
         description = "文本體裁（dialogue=對話；short=小短文）",

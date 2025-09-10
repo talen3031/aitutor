@@ -18,11 +18,11 @@ export function listListeningExercises() {
     .then((data) => (Array.isArray(data) ? data : data?.content ?? []));
 }
 
-export function generateListeningExercise({ difficulty, numQuestions, topic, genre }) {
+export function generateListeningExercise({ difficulty, numQuestions, topics, genre }) {
   // POST /api/exercises/listening/generate
   return request('/api/exercises/listening/generate', {
     method: 'POST',
-    data: { difficulty, numQuestions, topic, genre },
+    data: { difficulty, numQuestions, topics, genre },
   });
 }
 

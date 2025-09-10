@@ -12,7 +12,7 @@ export default function ArticleList() {
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage]   = useState(1);
-  const [size, setSize]   = useState(12);
+  const [size, setSize]   = useState(9);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
@@ -40,7 +40,7 @@ export default function ArticleList() {
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <Card title="文章列表">
-        {err && <Alert type="error" showIcon message={err} style={{ marginBottom: 12 }} />}
+        {err && <Alert type="error" showIcon message={err} style={{ marginBottom: 9 }} />}
 
         {loading ? (
           <Skeleton active paragraph={{ rows: 6 }} />
@@ -55,7 +55,7 @@ export default function ArticleList() {
               pageSize: size,
               total,
               onChange: (p, s) => { setPage(p); setSize(s); },
-              showSizeChanger: true,
+              showSizeChanger: false,
               showTotal: (t) => `共 ${t} 筆`
             }}
             renderItem={(a) => {

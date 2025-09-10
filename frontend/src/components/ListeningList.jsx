@@ -16,14 +16,19 @@ export default function ListeningList() {
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage]   = useState(1);
-  const [size, setSize]   = useState(12);
+  const [size, setSize]   = useState(9);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
     const genreMap = {
   short: "短文",
   dialogue: "對話",
 };
-const difficultyColorMap = {
+  const difficultyMap = {
+    easy: "簡單",
+    medium: "中等",
+    hard: "困難",
+  };
+      const difficultyColorMap = {
   easy: "green",
   medium: "yellow",
   hard: "red",
@@ -69,7 +74,7 @@ const difficultyColorMap = {
         )}
        
       >
-        {err && <Alert type="error" showIcon message={err} style={{ marginBottom: 12 }} />}
+        {err && <Alert type="error" showIcon message={err} style={{ marginBottom: 9 }} />}
 
         {loading ? (
           <Skeleton active paragraph={{ rows: 6 }} />
@@ -84,13 +89,14 @@ const difficultyColorMap = {
               pageSize: size,
               total,
               onChange: (p, s) => { setPage(p); setSize(s); },
-              showSizeChanger: true,
+              showSizeChanger: false,
               showTotal: (t) => `共 ${t} 筆`
             }}
             renderItem={(x) => {
               const id = x.id;
               const difficulty = x.difficulty ?? x?.spec?.difficulty ?? '—';
-              const topic = x?.spec?.topic ?? '—';
+              const topics = x?.spec?.topics ?? [];
+
               const genre = x?.spec?.genre ?? '—';
 
               return (
@@ -101,11 +107,25 @@ const difficultyColorMap = {
                     title={
                       // 跟 ArticleList 一樣：標題在上、Tag 放在下一行
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        
-                        <div>
-                          <Tag color={ difficultyColorMap[difficulty] || "default" }>難度：{difficulty}</Tag>
-                          <Tag>topic：{topic}</Tag>
-                          <Tag color="blue">{genreMap[genre] || genre}</Tag>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {/* 第一行：難度 + 題型 */}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                            <Tag color={ difficultyColorMap[difficulty] || "default" }>
+                              {difficultyMap[difficulty] || difficulty}
+                            </Tag>
+                            <Tag color="blue">{genreMap[genre] || genre}</Tag>
+                          </div>
+
+                          {/* 第二行：topics */}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                            {Array.isArray(topics) && topics.length > 0 ? (
+                              topics.map((t, i) => (
+                                <Tag key={i} color="purple">{t}</Tag>
+                              ))
+                            ) : (
+                              <Tag>—</Tag>
+                            )}
+                          </div>
                         </div>
                       </div>
                     }

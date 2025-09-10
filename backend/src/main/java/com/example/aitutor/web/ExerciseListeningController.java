@@ -45,7 +45,7 @@ public class ExerciseListeningController {
 
     @Operation(
         summary = "產生新的聽力題組（JSON body）",
-        description = "用 JSON 提供 difficulty、numQuestions、topic、genre（dialogue/short）。"
+        description = "用 JSON 提供 difficulty、numQuestions、topics、genre（dialogue/short）。"
     )
     @PostMapping("/generate")
     public ExerciseSetListening generateListeningSet(
@@ -61,7 +61,7 @@ public class ExerciseListeningController {
                         {
                           "difficulty": "easy",
                           "numQuestions": 3,
-                          "topic": "business",
+                          "topics": ["business","work","boss","science"],
                           "genre": "dialogue"
                         }
                         """
@@ -74,7 +74,11 @@ public class ExerciseListeningController {
         // —— 參數標準化（避免 null/空白）——
         String difficulty = req.getDifficulty();
         int numQuestions = req.getNumQuestions() <= 0 ? 3 : req.getNumQuestions();
-        String topic = (req.getTopic() == null || req.getTopic().isBlank()) ? "general" : req.getTopic();
+        
+        List<String> topics = (req.getTopics() == null || req.getTopics().isEmpty())
+            ? List.of("general")
+            : req.getTopics();
+
         String genre = (req.getGenre() == null || req.getGenre().isBlank()) ? "dialogue" : req.getGenre();
 
         // —— 額外業務規則檢查（Bean Validation 之外）——
@@ -83,6 +87,6 @@ public class ExerciseListeningController {
         }
 
         // —— 呼叫 Service（帶 genre）——
-        return exerciseListeningService.generateExercise(difficulty, numQuestions, topic, genre);
+        return exerciseListeningService.generateExercise(difficulty, numQuestions, topics, genre);
     }
 }

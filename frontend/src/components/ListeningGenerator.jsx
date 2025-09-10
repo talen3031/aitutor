@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Form, InputNumber, Select, Button, Space, Input, Alert } from 'antd';
+import { Card, Form, InputNumber, Select, Button, Space, Alert, Input, Tag } from 'antd';
 import { generateListeningExercise } from '../api/listening_exercises'; 
+
 export default function ListeningGenerator() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+
+  // ✅ topics 本地狀態（自訂輸入 + 標籤顯示）
+  const [topics, setTopics] = useState(['商業']);
+  const [topicInput, setTopicInput] = useState('');
+
+  const handleAddTopic = () => {
+    if (topicInput && !topics.includes(topicInput)) {
+      setTopics([...topics, topicInput]);
+    }
+    setTopicInput('');
+  };
+
+  const handleRemoveTopic = (removed) => {
+    setTopics(topics.filter((t) => t !== removed));
+  };
 
   const onFinish = async (values) => {
     setErr('');
@@ -14,7 +30,7 @@ export default function ListeningGenerator() {
       const payload = {
         difficulty: values.difficulty,
         numQuestions: Number(values.numQuestions || 0),
-        topic: values.topic,
+        topics: topics.length > 0 ? topics : ["general"], // ✅ 使用本地 topics 狀態
         genre: values.genre,
       };
       const data = await generateListeningExercise(payload);
@@ -30,14 +46,13 @@ export default function ListeningGenerator() {
       setLoading(false);
     }
   };
-
+  
   return (
     <Card title="產生英聽題組">
       <Form
         layout="vertical"
         onFinish={onFinish}
-        // 比照 ExerciseGenerator 的預設值行為（此頁不需要 articleId）
-        initialValues={{ difficulty: 'medium', numQuestions: 3, topic: '', genre: 'short' }}
+        initialValues={{ difficulty: 'medium', numQuestions: 3, genre: 'short' }}
         style={{ maxWidth: 520 }}
       >
         <Form.Item label="難度" name="difficulty">
@@ -49,7 +64,7 @@ export default function ListeningGenerator() {
             ]}
           />
         </Form.Item>
-
+        {/* ✅ 題數*/}
         <Form.Item
           label="題數"
           name="numQuestions"
@@ -57,16 +72,7 @@ export default function ListeningGenerator() {
         >
           <InputNumber min={1} max={10} style={{ width: '100%' }} />
         </Form.Item>
-
-        <Form.Item
-            label="主題"
-            name="topic"
-            rules={[{ required: true, message: '請輸入主題（例如 finance, travel）' }]}
-            getValueFromEvent={(e) => e.target.value.replace(/\s+/g, '')}  // ⭐ 自動移除所有空格
-            >
-            <Input placeholder="e.g., finance, travel, campus" />
-        </Form.Item>
-
+        {/* ✅題型選單*/}
         <Form.Item label="題型" name="genre">
           <Select
             options={[
@@ -76,6 +82,30 @@ export default function ListeningGenerator() {
           />
         </Form.Item>
 
+        {/* ✅ 自訂輸入框 + Tag 列表 */}
+        <Form.Item label="主題(可設置多個主題)" required>
+          <Input
+            placeholder="輸入主題後按 Enter"
+            value={topicInput}
+            onChange={(e) => setTopicInput(e.target.value)}
+            onPressEnter={(e) => {
+              e.preventDefault();
+              handleAddTopic();
+            }}
+          />
+          <div style={{ marginTop: 8 }}>
+            {topics.map((t) => (
+              <Tag
+                color='purple'
+                key={t}
+                closable
+                onClose={() => handleRemoveTopic(t)}
+              >
+                {t}
+              </Tag>
+            ))}
+          </div>
+        </Form.Item>
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit" loading={loading}>

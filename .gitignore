@@ -23,10 +23,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
-# 如果你希望鎖定版本，可拿掉上行。一般團隊建議保留鎖檔。
+# 如果希望鎖定版本，可拿掉上行。一般團隊建議保留鎖檔。
 
 # === Ignore generated audio files ===
 backend/src/main/resources/static/audio/
+
+# === Ignore generated exercise_set_listening (for data migration) ===
+backend/src/main/resources/db/migration/exercise_set_listening.sql
 
 # Vite / Build outputs
 dist/

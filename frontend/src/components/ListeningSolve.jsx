@@ -5,6 +5,7 @@ import {
   Card, List, Typography, Skeleton, Space, Button, Tag,
   Form, Radio, Input, Alert
 } from 'antd';
+import { CustomerServiceOutlined } from '@ant-design/icons';
 import { getListeningExercise } from '../api/listening_exercises';
 import { submitListeningAnswers } from '../api/listening_submissions';
 const { Text, Paragraph } = Typography;
@@ -87,18 +88,23 @@ export default function ListeningSolve() {
 
   const items = ex.items || [];
   const difficulty = ex.difficulty ?? ex?.spec?.difficulty ?? '—';
-  const topic = ex?.spec?.topic ?? '—';
+  const topics = ex?.spec?.topics ?? []; // 後端是存陣列
   const genre = ex?.spec?.genre ?? '—';
     const genreMap = {
   short: "短文",
   dialogue: "對話",
 };
 
-    const difficultyColorMap = {
+  const difficultyColorMap = {
   easy: "green",
   medium: "yellow",
   hard: "red",
-};
+  };
+  const difficultyMap = {
+    easy: "簡單",
+    medium: "中等",
+    hard: "困難",
+  };  
 
   // Transcript 斷行：以空白行優先；其次以單行換行
   const paragraphs = String(ex?.transcript || '')
@@ -187,10 +193,20 @@ export default function ListeningSolve() {
       <Card
         title={
           <Space>
-            英聽資訊
-            <Tag color={ difficultyColorMap[difficulty] || "default" }>難度：{difficulty}</Tag>
-            <Tag>topic：{topic}</Tag>
-            <Tag color="blue">{genreMap[genre] || genre}</Tag>
+            <CustomerServiceOutlined />
+            英聽題目
+              <Tag color={ difficultyColorMap[difficulty] || "default" }>
+                      {difficultyMap[difficulty] || difficulty}
+                </Tag>
+              <Tag color="blue">{genreMap[genre] || genre}</Tag>
+
+              {Array.isArray(topics) && topics.length > 0 ? (
+                topics.map((t, i) => (
+                  <Tag key={i} color="purple">{t}</Tag>
+                ))
+              ) : (
+                <Tag>—</Tag>
+              )}
           </Space>
         }
         extra={

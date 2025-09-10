@@ -5,10 +5,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ListeningPromptFactory {
 
-    public String buildPrompt(String difficulty, int numQuestions, String topic, String genre) {
-        String t = (topic == null || topic.isBlank()) ? "general" : topic;
-        String g = (genre == null || genre.isBlank()) ? "dialogue" : genre;
+    public String buildPrompt(String difficulty, int numQuestions, String topics, String genre) {
 
+        String t = (topics == null || topics.isBlank()) ? "general" : topics;
+        String g = (genre == null || genre.isBlank()) ? "dialogue" : genre;
+        
         String genreRules = "dialogue".equalsIgnoreCase(g)
             ? "- Transcript must be dialogue with speaker labels (A:, B: or names).\n- Keep 6–10 short turns."
             : "- Transcript must be a short narrative passage (1–2 paragraphs).\n- NO speaker labels or colon-prefixed lines.";

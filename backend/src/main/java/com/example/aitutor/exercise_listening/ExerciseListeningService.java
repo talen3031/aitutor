@@ -3,13 +3,14 @@ package com.example.aitutor.exercise_listening;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-// import org.springframework.data.domain.Sort;
 
 import com.example.aitutor.llm.OpenAiTtsClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -35,7 +36,7 @@ public class ExerciseListeningService {
 
     public List<ExerciseSetListening> findAll() {
         return repository.findAll(
-            // Sort.by(Sort.Order.desc("createdAt")) // created_at DESC
+            Sort.by(Sort.Order.desc("createdAt")) // created_at DESC
         );
     }
 
@@ -44,10 +45,15 @@ public class ExerciseListeningService {
                 .orElseThrow(() -> new RuntimeException("Listening set not found: " + id));
     }
 
-    public ExerciseSetListening generateExercise(String difficulty, int numQuestions,String topic,String genre) {
+    public ExerciseSetListening generateExercise(String difficulty, int numQuestions,List<String> topics,String genre) {
         try {
+             // 這裡把 List 轉成字串（只給 Prompt 用）
+            String topicString = (topics == null || topics.isEmpty())
+                    ? "general"
+                    : String.join(", ", topics);
+
             // 呼叫 LLM 產生 JSON
-            String responseJson = questionGenService.generateQuestions(difficulty, numQuestions,topic,genre);
+            String responseJson = questionGenService.generateQuestions(difficulty, numQuestions,topicString,genre);
             
             // 解析 JSON
             JsonNode root = objectMapper.readTree(responseJson);
@@ -57,12 +63,12 @@ public class ExerciseListeningService {
                     root.get("questions").toString(),
                     new TypeReference<List<ListeningQuestion>>() {}
             );
-            String topicSafe = (topic == null || topic.isBlank()) ? "general" : topic;
+
             String genreSafe = (genre == null || genre.isBlank()) ? "dialogue" : genre;
             Map<String, Object> spec = Map.of(
                     "difficulty", difficulty,
                     "numQuestions", numQuestions,
-                    "topic", topicSafe,
+                    "topics", topics,  // <-- 存陣列
                     "genre",genreSafe
             );
             
