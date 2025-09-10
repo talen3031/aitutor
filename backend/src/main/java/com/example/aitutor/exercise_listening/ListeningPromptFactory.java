@@ -15,7 +15,7 @@ public class ListeningPromptFactory {
             : "- Transcript must be a short narrative passage (1–2 paragraphs).\n- NO speaker labels or colon-prefixed lines.";
 
         return String.format("""
-            You are an English teacher. Generate a listening exercise in JSON.
+            You are an English teacher. Generate a English listening exercise in JSON.
 
             Requirements:
             - difficulty: %s
@@ -24,6 +24,7 @@ public class ListeningPromptFactory {
             - Transcript rules:
               %s
             - Include %d multiple-choice questions.
+            - transcript and all questions/answers MUST be written in English.
 
             Each question:
             - question (string)
